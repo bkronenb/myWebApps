@@ -1,0 +1,229 @@
+<!DOCTYPE hml>
+
+<html>
+<head>
+<title>Space Invaders</title>
+<meta charset="utf-8">
+
+<script>
+
+	function makePlayground() {
+		if (gameOver) return;
+		clearScreen();
+		ct.drawImage(backgroundImg, 0, 0);
+		//ct.drawImage(alienImg,0, 0, 100,100);
+		drawEnemies();
+		//ct.drawImage(playerShot, 600, 450, 100, 100);
+		//ct.drawImage(playerImg, 600, 450, 100, 100);
+		//drawPlayer();
+		//ct.drawImage(enemyShot, 0, 0, 100, 100);
+		//var aktuellesBild = document.getElementById("idCanvas");
+		//ct.drawImage(playerImg, playerX, 450, 100, 100);
+
+		window.setTimeout(makePlayground, 500);// hier
+	};
+
+	function drawPlayer() {
+		if (gameOver) return;
+		playerX += xmove;
+		if (playerX >= 1100) playerX=1100;
+		if (playerX <=    0) playerX = 0;
+		//ct.drawImage(aktuellesBild, 0, 0, 1200, 100);
+		ct.drawImage(playerImg, playerX, 450, 100, 100);
+		window.setTimeout(drawPlayer,1);
+	};
+
+	function drawPlayerShot() {
+		if (gameOver) return;
+		if (playerShotActive==false) {
+		shotXPos = playerX;
+		shotYPos = 450;
+		playerShotActive=true;
+		};
+		shotYPos += -1;
+		ct.drawImage(playerShot, shotXPos, shotYPos, 100, 100);
+		
+		//Hier kommt die Kollissionsabfrage rein
+		//shotXPos, shotYPos sind die Schusskoordinaten
+		//xline*100, ylinie*100 sind die Koordinaten der Enemies oben links
+
+		var koordX = Math.round(shotXPos/100-xline);
+		var koordY = Math.round((shotYPos+10)/100-yline);
+		if (koordX>=0 && koordY<enemyArray.length && enemyArray[koordY][koordX]=="1") {
+			enemyArray[koordY]=setCharAt(enemyArray[koordY], koordX, "0");
+			punkte++;
+			controlLine.innerHTML="Punkte: "+punkte;
+			playerShotActive=false;
+		};
+
+		if (shotYPos>10 && playerShotActive==true) {
+			window.setTimeout(drawPlayerShot, 5);
+		}
+		else {playerShotActive=false;};
+
+	};
+
+	function drawEnemies() {
+		if (gameOver) return;
+		borderRight = 0;
+		borderMax = enemyArray[0].length;
+		borderLeft = borderMax;
+		for (y=0; y<enemyArray.length; y++) {
+			for (x=0; x<enemyArray[0].length; x++) {
+				if (enemyArray[y][x]=="1")
+				{if (x>borderRight) borderRight=x;
+				 if (x<borderLeft) borderLeft=x;
+
+				ct.drawImage(alienImg, (xline+x)*100, (y+yline)*100, 100, 100);};
+			};
+		};
+		xline += xdir/10;
+		
+		if (xline>=borderMax+1-borderRight) {xdir = -xdir; xline += xdir/10; yline += 0.1};
+		if (xline<=(-borderLeft)) {xdir = -xdir; xline += xdir/10; yline += 0.1};
+		
+	};
+
+	function drawEnemyShots() {
+		if (gameOver) return;
+		for (index=0; index<enemyShotId.length; index++) {
+
+			if (enemyShotId[index][1]>0) {
+				enemyShotId[index][1] += 1;
+
+				//var x=Math.round(enemyShotId[index][0]/100);
+				var x=enemyShotId[index][0];
+				var y=enemyShotId[index][1];	
+
+				ct.drawImage(alienShotImg, enemyShotId[index][0], enemyShotId[index][1], 100, 100);
+
+				if (y>600) enemyShotId[index][1]=0;
+				
+				if (y>450)
+					if (playerX-50<x && x<playerX+50)
+						{gameOver=true; makeGameOver(); return};
+
+			} else {
+
+				if (Math.floor(Math.random() * 500)<=1) {
+
+					var xRand = Math.floor(Math.random() * (9 + 1))*100+xline*100;
+					var yRand = (Math.floor(Math.random() * (4))-1)*100+yline*100+10;
+
+					enemyShotId[index][0]=xRand;
+					enemyShotId[index][1]=yRand;
+
+				}
+			}
+		}
+		window.setTimeout(drawEnemyShots, 5);
+	};
+	
+	function clearScreen(){
+		ct.clearRect(0,0, breite, hoehe);};
+
+	function makeGameOver() {
+		gameOver=true;
+		controlLine.innerHTML="Game Over<br>Punkte:"+punkte;
+		ct.fillText("Game over", 500, 250);
+	};
+	
+	function setCharAt(str,index,chr) {
+		if(index > str.length-1) return str;
+		return str.substr(0,index) + chr + str.substr(index+1);
+	}
+
+</script>
+
+</head>
+
+<body>
+<h1 style="text-align: center" id="headline1">Space Invaders</h1>
+<p id="controlLine"></p>
+
+<canvas
+id="idCanvas"
+width = "1200"
+height = "600"
+style = "
+	padding: 0;
+    margin: auto;
+    display: block;
+    height: 600px;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+	border:solid 5px #000000;">
+</canvas>
+
+
+
+<script>
+	//Variablen definieren
+	var breite= 1200;
+	var hoehe = 600;
+
+	var gameOver = false;
+
+	//Bildaufbau
+	const c = document.getElementById("idCanvas");
+	const ct = c.getContext("2d");
+
+	ct.fillStyle = "#f0f0f0";
+	ct.lineWidth = 1;
+	ct.strokeStyle = "#000000";
+	ct.font = "italic bold 50px Arial";
+
+	var backgroundImg = new Image();
+	backgroundImg.src = "Background1.png";
+
+	var alienImg = new Image();
+	alienImg.src = "Alien2.png"
+
+	var playerImg = new Image();
+	playerImg.src = "player.png";
+
+	var playerShot = new Image();
+	playerShot.src = "playerShot.png";
+
+	var alienShotImg = new Image();
+	alienShotImg.src = "enemyShot.png";
+
+	//Game Controll Variablen
+	var enemyArray = ["1111111111", "1111111111", "1111111111", "1111111111"];
+	var borderLeft, borderRight, borderMax;
+	var enemyShotId = [[1,0],[2,0],[3,0], [4,0], [5,0]];
+	var xdir = 1, xline = 0; yline=0;
+	var xmove =0 , ymove=0, playerX = 600;
+	var playerShotActive = false, shotXPos=0, shotYPos=0;
+	var punkte=0;
+
+	// Dauerschleife Playground aufrufen
+//	window.setTimeout(makePlayground, 100);	
+
+
+	// Playerkontrolle hinzufügen
+	window.addEventListener("keydown", function(event) {
+
+		var key = event.keyCode;
+		//xmove=0;
+		//ymove=0;
+		if (key==37) xmove=-1; //links
+		if (key==39) xmove=1; //rechts
+		//if (key==38) ymove=-1; //hoch
+		//if (key==40) ymove=1; // runter
+		if (key==40) {if (playerShotActive==false) drawPlayerShot();};
+	});	
+
+	window.addEventListener("keyup", function(event) {ymove=0; xmove=0;});
+
+	makePlayground();
+	drawPlayer();
+	drawEnemyShots();
+	
+
+</script>
+</body>
+</html>
