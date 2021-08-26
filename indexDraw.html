@@ -1,69 +1,64 @@
 <!DOCTYPE html>
 
 <html>
+
 <head>
-	<meta charset="utf-8">
-	<title>Mein Malprogramm</title>
+    <meta charset="utf-8">
+    <title>Mein Malprogramm</title>
 
-	<script>
+    <script>
+        function init() {
 
-		
-		function init(){
-			
-			ct.fillStyle = "#f0f0f0";
-			ct.lineWidth = 1;
-			ct.strokeStyle = "#000000";
-		}
+            ct.fillStyle = "#f0f0f0";
+            ct.lineWidth = 1;
+            ct.strokeStyle = "#000000";
+        }
 
-		function clearScreen(){
-			ct.clearRect(0,0, 800,400);
-		};
+        function clearScreen() {
+            ct.clearRect(0, 0, 800, 400);
+        };
 
-		function plot(x, y, dicke) {	
-			ct.fillRect(x,y,dicke,dicke);
-			ct.strokeRect(x,y,dicke,dicke);
-		}
-	</script>
-	
+        function plot(x, y, dicke) {
+            ct.fillRect(x, y, dicke, dicke);
+            ct.strokeRect(x, y, dicke, dicke);
+        }
+    </script>
+
 </head>
 
 <body>
-	<canvas
-		id="idCanvas"
-		width = "800"
-		height = "400"
-		style = "border:solid 1px #000000;">
+    <h1>Mein Zeichenprogramm</h1>
+    <canvas id="idCanvas" width="800" height="400" style="border:solid 1px #000000;">
 </canvas>
 
-<form>
-<input type="button" name="ClearScreen" value="loeschen" onclick="clearScreen()">
-	
-	</form>
+    <form>
+        <input type="button" name="ClearScreen" value="loeschen" onclick="clearScreen()">
 
-<script>
-		var c = document.getElementById("idCanvas");
-		var ct = c.getContext("2d");
-		var mouseX, mouseY;
-		let canvasPosition = c.getBoundingClientRect();
-		var drawActive=false;
+    </form>
 
-		c.addEventListener("mousemove", function(event) {
-			mouseX = event.x - canvasPosition.left;
-			mouseY = event.y - canvasPosition.top;
-			if (drawActive) plot(mouseX, mouseY, 10);
-			}
-		);
-		
-		c.addEventListener("mousedown", function(event){
-			drawActive=true;
-		});
-		
-		c.addEventListener("mouseup", function(event){
-			drawActive=false;
-		});
-	init();
-</script>
+    <script>
+        var c = document.getElementById("idCanvas");
+        var ct = c.getContext("2d");
+        var mouseX, mouseY;
+        let canvasPosition = c.getBoundingClientRect();
+        var drawActive = false;
+
+        c.addEventListener("mousemove", function(event) {
+            mouseX = event.x - canvasPosition.left;
+            mouseY = event.y - canvasPosition.top;
+            if (drawActive) plot(mouseX, mouseY, 10);
+        });
+
+        c.addEventListener("mousedown", function(event) {
+            drawActive = true;
+        });
+
+        c.addEventListener("mouseup", function(event) {
+            drawActive = false;
+        });
+        init();
+    </script>
 
 </body>
-	
+
 </html>
